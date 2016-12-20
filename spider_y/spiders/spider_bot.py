@@ -10,6 +10,7 @@ import urllib2
 import urllib
 import cookielib
 import time
+from spider_y.items import SpiderYItem
 
 meta = {
     'dont_redirect': True,  # 禁止网页重定向
@@ -40,19 +41,21 @@ class Spider(scrapy.Spider):
         for u in self.start_urls:
             yield scrapy.Request(u, callback=self.parse,
                                     errback=self.errback,
-                                    dont_filter=True)
+                                    dont_filter=True,
+                                    encoding = 'utf-8')
 
 
     def parse(self, response):
         start_time = time.time()
+        item = SpiderYItem()
         html = etree.HTML(response.text)
-        names,imgs = get_img_name(html)
+        item['name'],item['img'] = get_img_name(html)
         next_page_url = html.xpath('//div[@id="J_bottomPage"]/span/a[@class="pn-next"]/@href')
         if next_page_url:
             next_page = 'https://list.jd.com' + next_page_url[0]
 
         print '耗时{}秒'.format(time.time()-start_time)
-        time.sleep(3)
+        time.sleep(30)
         yield scrapy.Request(next_page, callback=self.parse, meta=meta)
 
 
