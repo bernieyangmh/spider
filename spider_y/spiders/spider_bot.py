@@ -17,9 +17,17 @@ meta = {
 }
 
 
+
+def get_proxy():
+    return requests.get("http://127.0.0.1:5000/get/").content
+
+def delete_proxy(proxy):
+    requests.get("http://127.0.0.1:5000/delete/?proxy={}".format(proxy))
+
+
 def get(url):
     try:
-        r = requests.get(url)
+        r = requests.get(url, proxies={"http": "http://{}".format(get_proxy)})
         if r.ok:
             encoding = requests.utils.get_encodings_from_content(r.text)
             r.encoding = encoding[0] if encoding else requests.utils.get_encoding_from_headers(r.headers)
@@ -42,7 +50,9 @@ class Spider(scrapy.Spider):
             yield scrapy.Request(u, callback=self.parse,
                                     errback=self.errback,
                                     dont_filter=True,
-                                    encoding = 'utf-8')
+                                    encoding = 'utf-8'
+
+                                 )
 
 
     def parse(self, response):
@@ -55,7 +65,7 @@ class Spider(scrapy.Spider):
             next_page = 'https://list.jd.com' + next_page_url[0]
 
         print '耗时{}秒'.format(time.time()-start_time)
-        time.sleep(30)
+        time.sleep(2)
         yield scrapy.Request(next_page, callback=self.parse, meta=meta)
 
 

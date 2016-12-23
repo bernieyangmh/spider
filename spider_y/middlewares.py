@@ -4,7 +4,8 @@
 #
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
-
+import base64
+import requests
 import random
 from scrapy import signals
 from scrapy.contrib.downloadermiddleware.useragent import UserAgentMiddleware
@@ -103,3 +104,16 @@ class RotateUserAgentMiddleware(UserAgentMiddleware):
         ua = self._user_agent(spider)
         if ua:
             request.headers.setdefault('User-Agent', ua)
+
+def get_proxy():
+    return requests.get("http://127.0.0.1:5000/get/").content
+# Start your middleware class
+class ProxyMiddleware(object):
+    # overwrite process request
+
+    def process_request(self, request, spider):
+        # Set the location of the proxy
+        pass
+        # a = "http://{}".format(get_proxy())
+        # request.meta['proxy'] = "http://{}".format(get_proxy())
+

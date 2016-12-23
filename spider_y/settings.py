@@ -58,6 +58,7 @@ DOWNLOADER_MIDDLEWARES = {
 #    'woaidu_crawler.contrib.downloadmiddleware.google_cache.GoogleCacheMiddleware':50,
     'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
     'spider_y.middlewares.RotateUserAgentMiddleware':400,
+    'spider_y.middlewares.ProxyMiddleware':300,
 }
 
 # Enable or disable extensions
