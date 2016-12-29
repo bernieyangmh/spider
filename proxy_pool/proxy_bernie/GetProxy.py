@@ -98,9 +98,11 @@ class GetFreeProxy(object):
         """
         url = "http://www.goubanjia.com/free/gngn/index.shtml"
         tree = getHtmlTree(url)
-        proxy_list = tree.xpath('.//td[@class="ip"]')
-        for proxy in proxy_list:
-            yield ''.join(proxy.xpath('.//text()'))
+        for i in xrange(15):
+            if tree.xpath('.//table[@class="table"]/tbody/tr[{}]/td[2]/a/text()'.format(i + 1))[0] == U'高匿':
+                d = tree.xpath('.//table[@class="table"]/tbody/tr[{}]/td'.format(i + 1))[0]
+                o = d.xpath('.//span/text() | .//div/text()')
+                yield ''.join(o[:-1]) + ':' + o[-1]
 
 
 if __name__ == '__main__':
