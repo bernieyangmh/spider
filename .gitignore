@@ -53,6 +53,7 @@ cb9eec4 26 days ago
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # C extensions
 *.so
@@ -134,6 +135,9 @@ celerybeat-schedule
 .venv/
 venv/
 ENV/
+
+#pycharm
+*.idea
 
 # Spyder project settings
 .spyderproject
