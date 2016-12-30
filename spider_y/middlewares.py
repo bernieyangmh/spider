@@ -107,6 +107,7 @@ class RotateUserAgentMiddleware(UserAgentMiddleware):
 
 def get_proxy():
     return requests.get("http://127.0.0.1:5000/get/").content
+
 # Start your middleware class
 class ProxyMiddleware(object):
     # overwrite process request

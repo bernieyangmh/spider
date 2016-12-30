@@ -20,7 +20,8 @@ class RedisClient(object):
         :return:
         """
         self.name = name
-        self.__conn = redis.Redis(host=host, port=port, db=0)
+        self.pool = redis.ConnectionPool(host=host, port=port)
+        self.__conn = redis.StrictRedis(connection_pool=self.pool)
 
     def get(self):
         """
