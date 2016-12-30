@@ -9,6 +9,9 @@ import requests
 import random
 from scrapy import signals
 from scrapy.contrib.downloadermiddleware.useragent import UserAgentMiddleware
+from common_method import get_all_proxy,get_proxy,delete_proxy
+import logging
+logger = logging.getLogger(__name__)
 
 class SpiderYSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -105,16 +108,63 @@ class RotateUserAgentMiddleware(UserAgentMiddleware):
         if ua:
             request.headers.setdefault('User-Agent', ua)
 
-def get_proxy():
-    return requests.get("http://127.0.0.1:5000/get/").content
-
+meta = {
+    'dont_redirect': True,  # 禁止网页重定向
+}
 # Start your middleware class
 class ProxyMiddleware(object):
     # overwrite process request
 
+    def __init__(self):
+        # 默认不使用代理
+        self.use_proxy = None
+        # 代理列表
+        self.proxy_list = []
+
+        # 单次使用代理数量
+        self.proxy_list_num = 10
+
+
+    def add_proxy_list(self):
+        for i in range(self.proxy_list_num):
+            proxy = "http://{}".format(get_proxy())
+            self.proxy_list.append({'proxy_url':proxy,'state':'available'})
+
+
+
+    def set_proxy(self):
+        integer = random.randint(0, self.proxy_list_num-1)
+        proxy_dict = self.proxy_list[integer]
+        if proxy_dict.get('state', '') == 'available':
+            requests.mate["proxy"] = self
+
+
+
+
+
+
+
+
     def process_request(self, request, spider):
         # Set the location of the proxy
         pass
-        # a = "http://{}".format(get_proxy())
-        # request.meta['proxy'] = "http://{}".format(get_proxy())
 
+
+
+
+
+
+
+
+
+
+
+
+        a = "http://{}".format(get_proxy())
+        request.meta['proxy'] = "http://{}".format(get_proxy(),meta=meta)
+
+        # if "change_proxy" in request.meta.keys() and request.meta["change_proxy"]:
+        #     logger.info("change proxy request get by spider: %s"  % request)
+        #     self.invalid_proxy(request.meta["proxy_index"])
+        #     request.meta["change_proxy"] = False
+        # self.set_proxy(request)

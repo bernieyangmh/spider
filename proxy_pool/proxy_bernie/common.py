@@ -5,7 +5,7 @@ __author__ = 'berniey'
 
 import os
 from ConfigParser import ConfigParser
-
+import requests
 
 def robustCrawl(func):
     def decorate(*args, **kwargs):
@@ -122,4 +122,3 @@ def getHtmlTree(url, **kwargs):
     from lxml import etree
     html = requests.get(url=url).content
     return etree.HTML(html)
-

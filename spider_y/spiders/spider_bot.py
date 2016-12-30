@@ -12,30 +12,28 @@ import cookielib
 import time
 from spider_y.items import SpiderYItem
 
-meta = {
-    'dont_redirect': True,  # 禁止网页重定向
-}
 
 
 
-def get_proxy():
-    return requests.get("http://127.0.0.1:5000/get/").content
 
-def delete_proxy(proxy):
-    requests.get("http://127.0.0.1:5000/delete/?proxy={}".format(proxy))
+# def get_proxy():
+#     return requests.get("http://127.0.0.1:5000/get/").content
+#
+# def delete_proxy(proxy):
+#     requests.get("http://127.0.0.1:5000/delete/?proxy={}".format(proxy))
+#
 
-
-def get(url):
-    try:
-        r = requests.get(url, proxies={"http": "http://{}".format(get_proxy)})
-        if r.ok:
-            encoding = requests.utils.get_encodings_from_content(r.text)
-            r.encoding = encoding[0] if encoding else requests.utils.get_encoding_from_headers(r.headers)
-            return r.text
-        else:
-            raise Exception(r.status_code)
-    except requests.RequestException as e:
-        raise Exception(e)
+# def get(url):
+#     try:
+#         r = requests.get(url, proxies={"http": "http://{}".format(get_proxy)})
+#         if r.ok:
+#             encoding = requests.utils.get_encodings_from_content(r.text)
+#             r.encoding = encoding[0] if encoding else requests.utils.get_encoding_from_headers(r.headers)
+#             return r.text
+#         else:
+#             raise Exception(r.status_code)
+#     except requests.RequestException as e:
+#         raise Exception(e)
 
 
 class Spider(scrapy.Spider):
@@ -66,7 +64,7 @@ class Spider(scrapy.Spider):
 
         print '耗时{}秒'.format(time.time()-start_time)
         time.sleep(2)
-        yield scrapy.Request(next_page, callback=self.parse, meta=meta)
+        yield scrapy.Request(next_page, callback=self.parse)
 
 
     # def parse_item(self, response):
