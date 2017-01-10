@@ -121,50 +121,71 @@ class ProxyMiddleware(object):
         # 代理列表
         self.proxy_list = []
 
-        # 单次使用代理数量
+        # 单次添加代理数量
         self.proxy_list_num = 10
 
 
     def add_proxy_list(self):
+        """
+        添加需要的代理到列表,默认状态为可用
+
+        """
         for i in range(self.proxy_list_num):
             proxy = "http://{}".format(get_proxy())
-            self.proxy_list.append({'proxy_url':proxy,'state':'available'})
+            self.proxy_list.append({'proxy_url': proxy, 'state': 'available'})
 
 
 
-    def set_proxy(self):
-        integer = random.randint(0, self.proxy_list_num-1)
-        proxy_dict = self.proxy_list[integer]
-        if proxy_dict.get('state', '') == 'available':
-            requests.mate["proxy"] = self
-
-
-
-
-
-
+    def set_proxy(self, request, bad_proxy=False):
+        """
+        根据不同条件设置代理并将状态修改为已用
+        """
+        proxy = ''
+        for proxy_dict in self.proxy_list:
+            if proxy_dict.get('state', '') == 'available':
+                proxy = proxy_dict.get('proxy_url', '')
+                proxy_dict['state'] = 'used'
+        request.mate["proxy"] = proxy
+        if request.mate["proxy"] == '':             # 如果没有代理，添加并递归
+            self.add_proxy_list()
+            return self.set_proxy(request, bad_proxy=False)
+        if bad_proxy:                               # 如果代理错误，删除并换代理
+            er_proxy = request.mate["proxy"]
+            delete_proxy(er_proxy)
+            self.set_proxy(bad_proxy=False)
 
 
     def process_request(self, request, spider):
-        # Set the location of the proxy
-        pass
+        """Set the location of the proxy
+        """
+        request.meta["dont_redirect"] = True
+        self.set_proxy(request)
+        # spider发现parse error, 要求更换代理
+        if "change_proxy" in request.meta.keys() and request.meta["change_proxy"]:
+            logger.info("change proxy request get by spider: %s"  % request)
+            self.set_proxy(request, bad_proxy=True)
+            request.meta["change_proxy"] = False
 
 
 
+    def process_response(self, request, response, spider):
+        """
+        检查response.status, 根据status是否在允许的状态码中决定是否切换到下一个proxy, 或者禁用proxy
+        """
+        if "proxy" in request.meta.keys():
+            logger.debug("%s %s %s" % (request.meta["proxy"], response.status, request.url))
+        else:
+            logger.debug("None %s %s" % (response.status, request.url))
 
-
-
-
-
-
-
-
-
-        a = "http://{}".format(get_proxy())
-        request.meta['proxy'] = "http://{}".format(get_proxy(),meta=meta)
-
-        # if "change_proxy" in request.meta.keys() and request.meta["change_proxy"]:
-        #     logger.info("change proxy request get by spider: %s"  % request)
-        #     self.invalid_proxy(request.meta["proxy_index"])
-        #     request.meta["change_proxy"] = False
-        # self.set_proxy(request)
+        # status不是正常的200而且不在spider声明的正常爬取过程中可能出现的
+        # status列表中, 则认为代理无效, 切换代理
+        if response.status != 200 \
+                and (not hasattr(spider, "website_possible_httpstatus_list") \
+                             or response.status not in spider.website_possible_httpstatus_list):
+            logger.info("response status not in spider.website_possible_httpstatus_list")
+            self.set_proxy(request, bad_proxy=True)
+            new_request = request.copy()
+            new_request.dont_filter = True
+            return new_request
+        else:
+            return response
