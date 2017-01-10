@@ -107,6 +107,9 @@ def save_file(path, file_name, data):
 
 
 def get_img_name(html):
+    """
+    In future,i will remove save_file,add it to items
+    """
     names = []
     imgs = []
     for i in xrange(65):

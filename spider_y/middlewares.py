@@ -108,10 +108,6 @@ class RotateUserAgentMiddleware(UserAgentMiddleware):
         if ua:
             request.headers.setdefault('User-Agent', ua)
 
-meta = {
-    'dont_redirect': True,  # 禁止网页重定向
-}
-# Start your middleware class
 class ProxyMiddleware(object):
     # overwrite process request
 
@@ -180,8 +176,8 @@ class ProxyMiddleware(object):
         # status不是正常的200而且不在spider声明的正常爬取过程中可能出现的
         # status列表中, 则认为代理无效, 切换代理
         if response.status != 200 \
-                and (not hasattr(spider, "website_possible_httpstatus_list") \
-                             or response.status not in spider.website_possible_httpstatus_list):
+                and (not hasattr(spider, "website_possible_httpstatus_list") or
+                             response.status not in spider.website_possible_httpstatus_list):
             logger.info("response status not in spider.website_possible_httpstatus_list")
             self.set_proxy(request, bad_proxy=True)
             new_request = request.copy()
