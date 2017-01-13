@@ -141,12 +141,12 @@ class ProxyMiddleware(object):
             if proxy_dict.get('state', '') == 'available':
                 proxy = proxy_dict.get('proxy_url', '')
                 proxy_dict['state'] = 'used'
-        request.mate["proxy"] = proxy
-        if request.mate["proxy"] == '':             # 如果没有代理，添加并递归
+        request.meta["proxy"] = proxy
+        if request.meta["proxy"] == '':             # 如果没有代理，添加并递归
             self.add_proxy_list()
             return self.set_proxy(request, bad_proxy=False)
         if bad_proxy:                               # 如果代理错误，删除并换代理
-            er_proxy = request.mate["proxy"]
+            er_proxy = request.meta["proxy"]
             delete_proxy(er_proxy)
             self.set_proxy(bad_proxy=False)
 
