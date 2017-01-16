@@ -1,0 +1,20 @@
+生成一个新的爬虫 名字为mydomain  域及起始url为mydomain.com
+scrapy genspider mydomain mydomain.com
+
+给爬虫quotes赋予tag属性，值为humor
+scrapy crawl quotes -o quotes-humor.json -a tag=humor
+
+返回一个爬虫列表
+scrapy list 
+
+使用scrapy下载器读取对应url内容
+scrapy fetch --nolog --headers http://www.example.com/
+
+查看使用parse_item解析http://www.example.com/的详情
+scrapy parse http://www.example.com/ -c parse_item
+
+初始化一个request，爬去一个完成之后可以再生成一个请求
+scrapy.Spider.make_requests_from_url(url)
+
+正数广度优先，负数深度优先
+DEPTH_PRIORITY
