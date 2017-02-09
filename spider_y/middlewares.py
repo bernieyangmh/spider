@@ -141,6 +141,7 @@ class ProxyMiddleware(object):
             if proxy_dict.get('state', '') == 'available':
                 proxy = proxy_dict.get('proxy_url', '')
                 proxy_dict['state'] = 'used'
+                break
         request.meta["proxy"] = proxy
         if request.meta["proxy"] == '':             # 如果没有代理，添加并递归
             self.add_proxy_list()
@@ -155,7 +156,7 @@ class ProxyMiddleware(object):
         """Set the location of the proxy
         """
         request.meta["dont_redirect"] = True
-        self.set_proxy(request)
+        # self.set_proxy(request)
         # spider发现parse error, 要求更换代理
         if "change_proxy" in request.meta.keys() and request.meta["change_proxy"]:
             logger.info("change proxy request get by spider: %s"  % request)
